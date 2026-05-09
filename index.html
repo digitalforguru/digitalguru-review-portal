@@ -1,1 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DigitalGuru Review Portal</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
 
+<body>
+
+  <main class="page-shell">
+    <img src="logo.png" class="logo" alt="DigitalGuru logo" />
+
+    <p class="eyebrow">feedback portal ✧</p>
+
+    <h1>DigitalGuru Review Portal</h1>
+
+    <p class="page-subtitle">
+      leave feedback, report bugs, or share your dashboard setup ♡
+    </p>
+
+    <button id="openReviewBtn" class="main-btn">
+      leave feedback ✧
+    </button>
+  </main>
+
+  <div id="reviewOverlay" class="review-overlay hidden">
+    <div class="review-card">
+
+      <button id="closeReviewBtn" class="close-btn">×</button>
+
+      <div id="progressDots" class="progress-dots"></div>
+
+      <div id="stepContent" class="step-content"></div>
+
+      <div class="nav-row">
+        <button id="backBtn" class="nav-btn">back</button>
+        <button id="nextBtn" class="nav-btn">next</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script type="module" src="review.js"></script>
+
+</body>
+</html>
