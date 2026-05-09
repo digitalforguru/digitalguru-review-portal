@@ -161,3 +161,132 @@ function renderStep() {
         placeholder="${step.placeholder}"
         value="${reviewData[step.key] || ""}"
       />
+      `;
+  }
+
+  if (step.type === "contact") {
+    html += `
+      <input
+        id="nameInput"
+        placeholder="name or @username"
+        value="${reviewData.name || ""}"
+      />
+
+      <input
+        id="emailInput"
+        placeholder="email, optional"
+        value="${reviewData.email || ""}"
+      />
+    `;
+  }
+
+  stepContent.innerHTML = html;
+
+  document.querySelectorAll(".option-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const value = btn.dataset.value;
+
+      if (step.key === "repost_ok") {
+        reviewData.repost_ok = value === "yes ♡";
+      } else {
+        reviewData[step.key] = value;
+      }
+
+      renderStep();
+    });
+  });
+}
+
+function saveCurrentStep() {
+  const step = steps[currentStep];
+
+  if (step.type === "textarea" || step.type === "input") {
+    const input = document.getElementById("stepInput");
+    reviewData[step.key] = input?.value.trim() || "";
+  }
+
+  if (step.type === "contact") {
+    reviewData.name = document.getElementById("nameInput")?.value.trim() || "";
+    reviewData.email = document.getElementById("emailInput")?.value.trim() || "";
+  }
+}
+
+async function submitReview() {
+  saveCurrentStep();
+
+  nextBtn.disabled = true;
+  nextBtn.textContent = "sending...";
+
+  const { error } = await supabase.from("reviews").insert([
+    {
+      name: reviewData.name,
+      email: reviewData.email,
+      rating: reviewData.rating,
+      widget: reviewData.widget,
+      device: reviewData.device,
+      feedback: reviewData.feedback,
+      screenshot_link: reviewData.screenshot_link,
+      repost_ok: reviewData.repost_ok
+    }
+  ]);
+
+  if (error) {
+    console.error("Review submit error:", error);
+
+    stepContent.innerHTML = `
+      <div>
+        <h2 class="step-title">oops, something glitched</h2>
+        <p class="step-subtitle">try again in a minute or message me directly ♡</p>
+      </div>
+    `;
+
+    nextBtn.disabled = false;
+    nextBtn.textContent = "try again";
+    return;
+  }
+
+  progressDots.innerHTML = "";
+
+  stepContent.innerHTML = `
+    <div>
+      <h2 class="step-title">thank you ✧</h2>
+      <p class="step-subtitle">
+        your feedback was sent. thank you for helping build DigitalGuru ♡
+      </p>
+    </div>
+  `;
+
+  backBtn.style.visibility = "hidden";
+  nextBtn.textContent = "done";
+  nextBtn.disabled = false;
+
+  nextBtn.onclick = closeReview;
+}
+
+openBtn.addEventListener("click", openReview);
+closeBtn.addEventListener("click", closeReview);
+
+backBtn.addEventListener("click", () => {
+  saveCurrentStep();
+
+  if (currentStep > 0) {
+    currentStep--;
+    renderStep();
+  }
+});
+
+nextBtn.addEventListener("click", () => {
+  saveCurrentStep();
+
+  if (currentStep === steps.length - 1) {
+    submitReview();
+    return;
+  }
+
+  currentStep++;
+  renderStep();
+});
+
+overlay.addEventListener("click", (e) => {
+  if (e.target === overlay) closeReview();
+});
